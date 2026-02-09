@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000', // Using IP to avoid localhost DNS lag
+  // Replace the local URL with your live Render URL
+  baseURL: 'https://hrsm-attendance-system.onrender.com', 
   headers: {
     'Content-Type': 'application/json',
   },

@@ -7,16 +7,10 @@ app = FastAPI(
     description="Backend for HRMS Lite application using Firebase"
 )
 
-# CORS Configuration
-origins = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "http://localhost:3000",
-]
-
+# CORS Configuration - UPDATED
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Allow all origins (ya apna Vercel URL add karo)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

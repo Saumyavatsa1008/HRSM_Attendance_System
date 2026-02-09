@@ -2,12 +2,13 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import os
 from dotenv import load_dotenv
+import json
 import uuid
 from datetime import datetime
 
 load_dotenv()
 
-# Mock Firestore for Demo Mode
+# Mock Firestore classes (same as before)
 class MockCollection:
     def __init__(self, data):
         self.data = data
@@ -48,6 +49,13 @@ class MockSnapshot:
     def to_dict(self):
         return self._data
 
+class MockStream:
+    def __init__(self, data):
+        self.data = data
+    
+    def __iter__(self):
+        return iter([MockSnapshot(d) for d in self.data])
+
 class MockClient:
     def __init__(self):
         self._data = {
@@ -57,27 +65,41 @@ class MockClient:
         print("\n" + "="*50)
         print(" WARNING: RUNNING IN DEMO MODE (Mock Database)")
         print(" Data will be lost when server restarts.")
-        print(" Add serviceAccountKey.json for real persistence.")
+        print(" Add FIREBASE_CREDENTIALS env var for persistence.")
         print("="*50 + "\n")
 
     def collection(self, name):
         return MockCollection(self._data[name])
 
-# Database Connection Logic
-cred_path = "serviceAccountKey.json"
+# Database Connection Logic - UPDATED
 db = None
 
-if os.path.exists(cred_path):
-    try:
-        cred = credentials.Certificate(cred_path)
+try:
+    # First try environment variable (for Render)
+    firebase_creds_json = os.getenv("FIREBASE_CREDENTIALS")
+    
+    if firebase_creds_json:
+        cred_dict = json.loads(firebase_creds_json)
+        cred = credentials.Certificate(cred_dict)
         if not firebase_admin._apps:
             firebase_admin.initialize_app(cred)
         db = firestore.client()
-        print("SUCCESS: Connected to Firebase Firestore.")
-    except Exception as e:
-        print(f"ERROR: Failed to connect to Firebase: {e}")
-        db = MockClient()
-else:
+        print("✓ SUCCESS: Connected to Firebase via environment variable")
+    
+    # Fallback to local file
+    elif os.path.exists("serviceAccountKey.json"):
+        cred = credentials.Certificate("serviceAccountKey.json")
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(cred)
+        db = firestore.client()
+        print("✓ SUCCESS: Connected to Firebase via local file")
+    
+    else:
+        raise FileNotFoundError("No Firebase credentials found")
+
+except Exception as e:
+    print(f"⚠ WARNING: {e}")
+    print("⚠ Using Mock Database")
     db = MockClient()
 
 def get_db():
