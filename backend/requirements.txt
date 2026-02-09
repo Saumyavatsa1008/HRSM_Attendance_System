@@ -4,3 +4,4 @@ firebase-admin
 pydantic
 python-multipart
 python-dotenv
+email-validator
