@@ -1,0 +1,14 @@
+# Firebase Secret Key (Crucial!)
+serviceAccountKey.json
+
+# Python Environment & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+venv/
+env/
+
+# IDE Settings
+.vscode/
+.idea/
